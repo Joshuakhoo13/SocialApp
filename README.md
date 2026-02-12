@@ -84,6 +84,9 @@ Supabase provides the backend (database and auth) for this application.
 5. Click **Create new project**
 6. Wait for the project to finish provisioning (1–2 minutes)
 
+#### IMPORTANT: Disable email confirmation
+1. In Supabase, Authentication -> Sign In / Providers -> Disable Confirm Email -> Save Changes
+
 #### Create the post-photos Bucket
 
 1. In the Supabase dashboard, go to **Storage** in the left sidebar
