@@ -137,13 +137,15 @@ npm run seed
 npm run import:posts
 ```
 
-4. Start the development server:
+4. Ensure that your laptop and phone are on the same network. School wifi is blocking. Preferbly, you should hotspot your computer with your phone.
+   
+5. Start the development server:
 
 ```bash
 npx expo start
 ```
 
-5. Choose how to run: scan the QR code with Expo Go for android, scan with camera for ios
+6. Choose how to run: scan the QR code with Expo Go for android, scan with camera for ios
 
 ## 🧪 Testing
 
