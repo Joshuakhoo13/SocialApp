@@ -1,98 +1,144 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { FlashList, type FlashListRef } from '@shopify/flash-list';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
+import { FeedPostCard } from '@/components/feed-post-card';
+import { HomeHeader } from '@/components/home-header';
+import { PostCardSkeleton } from '@/components/post-card-skeleton';
+import { SafeScreenView } from '@/components/safe-screen-view';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { Colors, Spacing } from '@/constants/theme';
+import type { PostData } from '@/contexts/post-context';
+import { usePost } from '@/contexts/post-context';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const { posts, loading, loadingMore, hasMore, loadMore, refreshPosts } = usePost();
+  const { width } = useWindowDimensions();
+  const listRef = useRef<FlashListRef<PostData>>(null);
+  const navigation = useNavigation();
+  const isFocused = useIsFocused();
+  const colorScheme = useColorScheme();
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
+  useEffect(() => {
+    const unsubscribe = (navigation as { addListener: (e: string, cb: () => void) => () => void })
+      .addListener('tabPress', () => {
+        if (isFocused) {
+          listRef.current?.scrollToOffset({ offset: 0, animated: true });
+        }
+      });
+    return unsubscribe;
+  }, [navigation, isFocused]);
+  const colors = Colors[colorScheme ?? 'dark'];
+
+  const imageWidth = width - 24 * 2 - 24 * 2;
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refreshPosts();
+    setRefreshing(false);
+  }, [refreshPosts]);
+
+  const renderItem = useCallback(
+    ({ item: post }: { item: PostData }) => (
+      <FeedPostCard post={post} imageWidth={imageWidth} />
+    ),
+    [imageWidth]
+  );
+
+  const handleEndReached = useCallback(() => {
+    if (hasMore && !loadingMore) loadMore();
+  }, [hasMore, loadingMore, loadMore]);
+
+  const ListHeaderComponent = useCallback(
+    () => (
+      <View style={styles.headerWrap}>
+        <HomeHeader />
+      </View>
+    ),
+    []
+  );
+
+  const ListFooterComponent = useCallback(
+    () =>
+      loadingMore ? (
+        <ActivityIndicator size="small" color={colors.tint} style={styles.footerLoader} />
+      ) : null,
+    [loadingMore, colors.tint]
+  );
+
+  const ListEmptyComponent = useCallback(
+    () =>
+      loading ? (
+        <View style={styles.skeletonWrap}>
+          <PostCardSkeleton />
+          <PostCardSkeleton />
+          <PostCardSkeleton />
+        </View>
+      ) : (
+        <ThemedText style={[styles.emptyState, { color: colors.textSecondary }]}>
+          No posts yet. Go to the Post tab to create one!
         </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      ),
+    [loading, colors.textSecondary]
+  );
+
+  return (
+    <SafeScreenView style={styles.container}>
+      <FlashList
+        ref={listRef}
+        data={posts}
+        renderItem={renderItem}
+        drawDistance={400}
+        keyExtractor={(item) => item.id}
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.5}
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
+        ListHeaderComponent={ListHeaderComponent}
+        ListFooterComponent={ListFooterComponent}
+        ListEmptyComponent={ListEmptyComponent}
+        contentContainerStyle={styles.listContent}
+        style={styles.list}
+        showsVerticalScrollIndicator={false}
+      />
+    </SafeScreenView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  headerWrap: {
+    paddingBottom: Spacing.md,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  list: {
+    flex: 1,
+  },
+  listContent: {
+    paddingBottom: Spacing.lg,
+  },
+  footerLoader: {
+    paddingVertical: Spacing.lg,
+  },
+  skeletonWrap: {
+    paddingTop: Spacing.sm,
+  },
+  emptyState: {
+    marginTop: Spacing.xl,
+    textAlign: 'center',
+    fontSize: 16,
+    lineHeight: 24,
   },
 });

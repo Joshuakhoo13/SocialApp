@@ -27,6 +27,7 @@
     },
     "plugins": [
       "expo-router",
+      ["expo-image-picker", {"photosPermission": "Allow SocialApp to access your photos for posting."}],
       [
         "expo-splash-screen",
         {
