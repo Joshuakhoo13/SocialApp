@@ -1,10 +1,24 @@
 # Social App
 
-Short one-sentence description
+A modern social media mobile application built with React Native and Expo.
+Users can authenticate, view a feed of posts, and create new posts.
 
 ## 🚀 Features
 
+- User authentication
+- View feed of posts
+- Create new posts with optional images
+- Pull to refresh
+- Infinite scrolling
+- Dark theme UI
+
 ## 🛠 Tech Stack
+
+- React Native (0.81+)
+- Expo (SDK 54+)
+- TypeScript
+- FlashList v2
+- Supabase
 
 ## 📦 Installation
 
@@ -152,8 +166,55 @@ npx expo start
 
 ## 🧪 Testing
 
+This project does not use automated tests. All testing is done manually.
+
+### Manual Testing Checklist
+
+- **Login and Sign up** – Sign in with existing credentials; create a new account; use the show/hide password toggle
+- **View feed** – Posts load and display correctly
+- **Create new post** – Add text and optional image; post appears in feed
+- **Refresh feed** – Pull down to refresh and load latest posts
+- **Scroll to load more** – Infinite scroll loads additional posts
+
+If you run into any issues while testing, you can reach out at [joshuakhoo22@gmail.com](mailto:joshuakhoo22@gmail.com).
+
 ## 📂 Project Structure
 
-## 🔐 Environment Variables (if any)
+```
+SocialApp/
+├── app/                    # Expo Router screens
+│   ├── (tabs)/             # Tab navigation (Feed, Post, Profile)
+│   │   ├── index.tsx        # Feed tab
+│   │   ├── post.tsx        # Create post tab
+│   │   └── profile.tsx     # Profile tab
+│   ├── index.tsx           # Login/signup screen
+│   ├── modal.tsx           # Modal screen
+│   ├── username-setup.tsx  # Username setup flow
+│   └── _layout.tsx         # Root layout
+├── assets/                 # Images and static assets
+│   └── images/
+├── components/             # Reusable UI components
+│   ├── ui/                 # Base UI components
+│   ├── auth-gate.tsx       # Auth wrapper
+│   ├── feed-post-card.tsx  # Feed post display
+│   ├── post-card.tsx       # Post card component
+│   └── ...
+├── constants/              # App constants
+│   └── theme.ts
+├── contexts/               # React contexts
+│   ├── auth-context.tsx
+│   └── post-context.tsx
+├── databaseconfig/         # Database schema
+│   └── schema.sql
+├── hooks/                  # Custom React hooks
+├── lib/                    # Utilities and services
+│   ├── supabase.ts        # Supabase client
+│   ├── posts.ts
+│   ├── users.ts
+│   └── feed-pagination.ts
+└── scripts/                # Build and seed scripts
+    ├── seed-database.js
+    └── import_posts.ts
+```
 
-## 📸 Screenshots (Optional but impressive)
+
