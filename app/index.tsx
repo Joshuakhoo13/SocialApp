@@ -10,6 +10,7 @@ import {
     TextInput,
     View,
 } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { SafeScreenView } from '@/components/safe-screen-view';
 import { ThemedText } from '@/components/themed-text';
@@ -26,6 +27,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async () => {
     const trimmedEmail = email.trim();
@@ -89,23 +91,38 @@ export default function LoginScreen() {
               editable={!isLoading}
             />
 
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  color: colors.text,
-                  backgroundColor: colorScheme === 'dark' ? '#2a2a2a' : '#f5f5f5',
-                  borderColor: colorScheme === 'dark' ? '#444' : '#e0e0e0',
-                },
-              ]}
-              placeholder="Password"
-              placeholderTextColor={colors.icon}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoCapitalize="none"
-              editable={!isLoading}
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={[
+                  styles.input,
+                  styles.passwordInput,
+                  {
+                    color: colors.text,
+                    backgroundColor: colorScheme === 'dark' ? '#2a2a2a' : '#f5f5f5',
+                    borderColor: colorScheme === 'dark' ? '#444' : '#e0e0e0',
+                  },
+                ]}
+                placeholder="Password"
+                placeholderTextColor={colors.icon}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                editable={!isLoading}
+              />
+              <Pressable
+                  style={styles.passwordToggle}
+                  onPress={() => setShowPassword(!showPassword)}
+                  hitSlop={8}
+                  accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+                  accessibilityRole="button">
+                  <MaterialIcons
+                    name={showPassword ? 'visibility-off' : 'visibility'}
+                    size={22}
+                    color={colors.icon}
+                  />
+                </Pressable>
+            </View>
 
             <View style={styles.buttons}>
               <Pressable
@@ -137,7 +154,10 @@ export default function LoginScreen() {
                   pressed && styles.buttonPressed,
                   isLoading && styles.buttonDisabled,
                 ]}
-                onPress={() => setIsSignUp(!isSignUp)}
+                onPress={() => {
+                  setIsSignUp(!isSignUp);
+                  setShowPassword(false);
+                }}
                 disabled={isLoading}>
                 <ThemedText style={[styles.secondaryButtonText, { color: colors.tint }]}>
                   {isSignUp ? 'Already have an account? Log In' : "Don't have an account? Sign Up"}
@@ -186,6 +206,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 16,
     marginBottom: 16,
+  },
+  passwordContainer: {
+    width: '100%',
+    position: 'relative',
+    marginBottom: 16,
+  },
+  passwordInput: {
+    marginBottom: 0,
+    paddingRight: 48,
+  },
+  passwordToggle: {
+    position: 'absolute',
+    right: 12,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttons: {
     width: '100%',
