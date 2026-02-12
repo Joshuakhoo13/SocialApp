@@ -123,25 +123,27 @@ cp .env.example .env
 
 ## ▶️ Running the App
 
-1. Seed users (creates auth users and populates the user table from authors in `seed.json`):
+1. Add seed.json file into project root (can just drag and drop).
+
+2. Seed users (creates auth users and populates the user table from authors in `seed.json`):
 
 ```bash
 npm run seed
 ```
 
-2. Import posts (populates the post table; requires users to exist first):
+3. Import posts (populates the post table; requires users to exist first):
 
 ```bash
 npm run import:posts
 ```
 
-3. Start the development server:
+4. Start the development server:
 
 ```bash
 npx expo start
 ```
 
-4. Choose how to run: scan the QR code with Expo Go for android, scan with camera for ios
+5. Choose how to run: scan the QR code with Expo Go for android, scan with camera for ios
 
 ## 🧪 Testing
 
