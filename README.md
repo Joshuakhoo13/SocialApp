@@ -80,7 +80,7 @@ Supabase provides the backend (database and auth) for this application.
    - **Name** – e.g. `social-app`
    - **Database Password** – choose a strong password and save it
    - **Region** – select Singapore
-4. Enable RLS
+4. Enable RLS and data api
 5. Click **Create new project**
 6. Wait for the project to finish provisioning (1–2 minutes)
 
